@@ -8,14 +8,12 @@ private:
     unsigned int NPC;
     unsigned int A;
     unsigned int B;
-    unsigned int Imm;
+    signed int Imm;
     unsigned int ALUOutput;
     unsigned int cond;
     unsigned int LMD;
-public:
-    static unsigned int R[32];
-    static unsigned int PC;
 
+public:
     latchRegister(/* args */);
     ~latchRegister();
 

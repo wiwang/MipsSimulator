@@ -19,7 +19,8 @@ public:
 
     unsigned int loadWordData(unsigned int index)
     {
-        return ();
+        return ((0xff000000&(DMem[index]<<24)) | (0x00ff0000&(DMem[index+1]<<16)) |
+         (0x0000ff00&(DMem[index+2]<<8)) | (0x000000ff&DMem[index+3]));
     }
 
     void saveWordData(unsigned int data)
@@ -29,7 +30,8 @@ public:
 
     unsigned int loadInstruction(unsigned int PC)
     {
-        return ();
+        return ((0xff000000&(IMem[PC]<<24)) | (0x00ff0000&(IMem[PC+1]<<16)) |
+         (0x0000ff00&(IMem[PC+2]<<8)) | (0x000000ff&IMem[PC+3]));
     }
 
     void saveInstruction(unsigned int instruction)
