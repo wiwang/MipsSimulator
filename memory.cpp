@@ -23,7 +23,7 @@ public:
          (0x0000ff00&(DMem[index+2]<<8)) | (0x000000ff&DMem[index+3]));
     }
 
-    void saveWordData(unsigned int data)
+    void saveWordData(unsigned int data, unsigned int index)
     {
         return;
     }
