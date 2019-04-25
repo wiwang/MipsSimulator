@@ -8,6 +8,8 @@ public:
 
     static unsigned int execute(unsigned int a, unsigned int b, unsigned int instruction)
     {
+        if (decoder::isRInstruction(instruction))
+        {
         switch (instruction & 0xffffffc0)
         {
         case 0x00000020://add
@@ -32,6 +34,22 @@ public:
 
         default:
             break;
+        }
+        }
+
+        if (decoder::isOrInstruction(instruction))
+        {
+            return (a | b);
+        }
+
+        if (decoder::isAndInstruction(instruction))
+        {
+            return (a & b);
+        }
+
+        if (decoder::isXorInstruction(instruction))
+        {
+            return (a xor b);
         }
     }
 };

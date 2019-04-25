@@ -8,7 +8,7 @@ private:
     unsigned int NPC;
     unsigned int A;
     unsigned int B;
-    signed int Imm;
+    int Imm;
     unsigned int ALUOutput;
     unsigned int cond;
     unsigned int LMD;
@@ -57,11 +57,11 @@ public:
         return;
     }
 
-    unsigned int getImm()
+    int getImm()
     {
         return Imm;
     }
-    void setImm(unsigned int value)
+    void setImm(int value)
     {
         Imm = value;
         return;

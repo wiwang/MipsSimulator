@@ -16,7 +16,7 @@ public:
             return false;
         }
     }
-    static bool isJInstruction(unsigned int instruction) 
+    static bool isIInstruction(unsigned int instruction) 
     {
          if ((instruction&OP_MASK) != 0 && (instruction&OP_MASK) != J_INSTRUCTION)
         {
@@ -61,6 +61,43 @@ public:
             return false;
         }        
     }
+
+    static bool isOriInstruction(unsigned int instruction)
+    {
+        if ((instruction&OP_MASK) == ORI_INSTRUCTION)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }  
+        
+    }
+
+    static bool isAndiInstruction(unsigned int instruction)
+    {
+        if ((instruction&OP_MASK) == ANDI_INSTRUCTION)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }  
+    }
+
+    static bool isXorInstruction(unsigned int instruction)
+    {
+        if ((instruction&OP_MASK) == XORI_INSTRUCTION)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }  
+    }        
 
     static unsigned int getRsField(unsigned int instruction) { return (instruction & RS_MASK);}
     static unsigned int getRtField(unsigned int instruction) { return (instruction & RT_MASK);}

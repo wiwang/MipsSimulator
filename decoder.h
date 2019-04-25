@@ -44,6 +44,9 @@ unsigned int const J_INSTRUCTION = 0x08000000;
 unsigned int const LW_INSTRUCTION = 0x8c000000;
 unsigned int const SW_INSTRUCTION = 0xac000000;
 unsigned int const BRANCH_INSTRUCTION = 0x10000000;
+unsigned int const ORI_INSTRUCTION = 0x34000000;
+unsigned int const ANDI_INSTRUCTION = 0x30000000;
+unsigned int const XOR_INSTRUCTION = 0x38000000;
 
 class decoder
 {
@@ -62,4 +65,7 @@ public:
     static unsigned int getRdField(unsigned int instruction) {}
     static unsigned int getOffsetField(unsigned int instruction) {}
     static unsigned int getFunctField(unsigned int instruction) {}
+    static bool isOriInstruction(unsigned int instruction) {}
+    static bool isAndiInstruction(unsigned int instruction) {}
+    static bool isXorInstruction(unsigned int instruction) {}
 };

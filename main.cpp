@@ -34,6 +34,11 @@ int main(int argc, char *argv[])
 
     cout << sizeof(unsigned long int) << endl;
 
+    /* initiate memory and pipeline*/
+    memory m;
+    pipeline p(m);
+
+    /* run the pipeline in clock cycle */
     while (true)
     {
         ret = select(0 ,NULL, NULL,NULL, &stuTime);  
@@ -41,6 +46,8 @@ int main(int argc, char *argv[])
         {
             cout<<"set_timer_s time come in:"<<endl;
             /* execute the pipeline every 1 second */
+            p.execute();
+            
         }       
         
     }

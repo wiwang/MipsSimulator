@@ -25,6 +25,10 @@ public:
 
     void saveWordData(unsigned int data, unsigned int index)
     {
+        DMem[index] = data>>24;
+        DMem[index+1] = data>>16;
+        DMem[index+2] = data>>8;
+        DMem[index+3] = data;
         return;
     }
 
