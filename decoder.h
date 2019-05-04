@@ -1,3 +1,6 @@
+#ifndef _MIPS_SIMULATOR_DECODER_H_
+#define _MIPS_SIMULATOR_DECODER_H_
+
 typedef struct RFormat
 {
     unsigned int op: 6;
@@ -46,26 +49,32 @@ unsigned int const SW_INSTRUCTION = 0xac000000;
 unsigned int const BRANCH_INSTRUCTION = 0x10000000;
 unsigned int const ORI_INSTRUCTION = 0x34000000;
 unsigned int const ANDI_INSTRUCTION = 0x30000000;
-unsigned int const XOR_INSTRUCTION = 0x38000000;
+unsigned int const XORI_INSTRUCTION = 0x38000000;
+unsigned int const LUI_INSTRUCTION = 0x3c000000;
+
+unsigned int const NOP_INSTRUCTION = 0xffffffff;
+unsigned int const END_INSTRUCTION = 0xfffffffe;
 
 class decoder
 {
-private:
-
 public:
-    static bool isRInstruction(unsigned int instruction) {}
-    static bool isJInstruction(unsigned int instruction) {}
-    static bool isBranchInstruction(unsigned int instruction) {}
-
-    static bool isLoadInstruction(unsigned int instruction) {}
-    static bool isSaveInstruction(unsigned int instruction) {}
-
-    static unsigned int getRsField(unsigned int instruction) {}
-    static unsigned int getRtField(unsigned int instruction) {}
-    static unsigned int getRdField(unsigned int instruction) {}
-    static unsigned int getOffsetField(unsigned int instruction) {}
-    static unsigned int getFunctField(unsigned int instruction) {}
-    static bool isOriInstruction(unsigned int instruction) {}
-    static bool isAndiInstruction(unsigned int instruction) {}
-    static bool isXorInstruction(unsigned int instruction) {}
+    static bool isRInstruction(unsigned int instruction);
+    static bool isJInstruction(unsigned int instruction);
+    static bool isBranchInstruction(unsigned int instruction);
+    static bool isIInstruction(unsigned int instruction);
+    static bool isLoadInstruction(unsigned int instruction);
+    static bool isSaveInstruction(unsigned int instruction);
+    static unsigned int getRsField(unsigned int instruction);
+    static unsigned int getRtField(unsigned int instruction);
+    static unsigned int getRdField(unsigned int instruction);
+    static unsigned int getOffsetField(unsigned int instruction);
+    static unsigned int getFunctField(unsigned int instruction);
+    static bool isOriInstruction(unsigned int instruction);
+    static bool isAndiInstruction(unsigned int instruction);
+    static bool isXoriInstruction(unsigned int instruction);
+    static bool isLuiInstruction(unsigned int instruction);
+    static bool isNOPInstruction(unsigned int instruction);
+    static bool isENDInstruction(unsigned int instruction);
 };
+
+#endif

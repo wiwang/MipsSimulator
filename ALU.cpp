@@ -1,16 +1,15 @@
 
+#include "ALU.h"
+#include "decoder.h"
 
-class ALU
+
+unsigned int ALU::execute(unsigned int a, unsigned int b, unsigned int instruction)
 {
-private:
-    /* data */
-public:
+    unsigned int immediate = (unsigned int)decoder::getOffsetField(instruction);
 
-    static unsigned int execute(unsigned int a, unsigned int b, unsigned int instruction)
+    if (decoder::isRInstruction(instruction))
     {
-        if (decoder::isRInstruction(instruction))
-        {
-        switch (instruction & 0xffffffc0)
+        switch (instruction & 0x0000003f)
         {
         case 0x00000020://add
             return (a + b);
@@ -35,21 +34,20 @@ public:
         default:
             break;
         }
-        }
-
-        if (decoder::isOrInstruction(instruction))
-        {
-            return (a | b);
-        }
-
-        if (decoder::isAndInstruction(instruction))
-        {
-            return (a & b);
-        }
-
-        if (decoder::isXorInstruction(instruction))
-        {
-            return (a xor b);
-        }
     }
-};
+
+    if (decoder::isOriInstruction(instruction))
+    {
+        return (a | immediate);
+    }
+
+    if (decoder::isAndiInstruction(instruction))
+    {
+        return (a & immediate);
+    }
+
+    if (decoder::isXoriInstruction(instruction))
+    {
+        return (a xor immediate);
+    }
+}

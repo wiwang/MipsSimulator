@@ -1,100 +1,95 @@
+#include "latchRegister.h"
 
 
-
-class latchRegister
+void latchRegister::clear()
 {
-private:
-    unsigned int IR;
-    unsigned int NPC;
-    unsigned int A;
-    unsigned int B;
-    int Imm;
-    unsigned int ALUOutput;
-    unsigned int cond;
-    unsigned int LMD;
+    IR = 0;
+    NPC = 0;
+    A = 0;
+    B = 0;
+    Imm = 0;
+    ALUOutput = 0;
+    cond = 0;
+    LMD = 0;
+}
 
-public:
-    latchRegister(/* args */);
-    ~latchRegister();
+unsigned int latchRegister::getIR()
+{
+    return IR;
+}
+void latchRegister::setIR(unsigned int value)
+{
+    IR = value;
+    return;
+} 
 
-    unsigned int getIR()
-    {
-        return IR;
-    }
-    void setIR(unsigned int value)
-    {
-        IR = value;
-        return;
-    } 
+unsigned int latchRegister::getNPC()
+{
+    return NPC;
+}
+void latchRegister::setNPC(unsigned int value)
+{
+    NPC = value;
+    return;
+}
 
-    unsigned int getNPC()
-    {
-        return NPC;
-    }
-    void setNPC(unsigned int value)
-    {
-        NPC = value;
-        return;
-    }
+unsigned int latchRegister::getA()
+{
+    return A;
+}
+void latchRegister::setA(unsigned int value)
+{
+    A = value;
+    return;
+}
 
-    unsigned int getA()
-    {
-        return A;
-    }
-    void setA(unsigned int value)
-    {
-        A = value;
-        return;
-    }
+unsigned int latchRegister::getB()
+{
+    return B;
+}
+void latchRegister::setB(unsigned int value)
+{
+    B = value;
+    return;
+}
 
-    unsigned int getB()
-    {
-        return B;
-    }
-    void setB(unsigned int value)
-    {
-        B = value;
-        return;
-    }
+int latchRegister::getImm()
+{
+    return Imm;
+}
+void latchRegister::setImm(int value)
+{
+    Imm = value;
+    return;
+}
 
-    int getImm()
-    {
-        return Imm;
-    }
-    void setImm(int value)
-    {
-        Imm = value;
-        return;
-    }
+unsigned int latchRegister::getALUOutput()
+{
+    return ALUOutput;
+}
+void latchRegister::setALUOutput(unsigned int value)
+{
+    ALUOutput = value;
+    return;
+}  
 
-    unsigned int getALUOutput()
-    {
-        return ALUOutput;
-    }
-    void setALUOutput(unsigned int value)
-    {
-        ALUOutput = value;
-        return;
-    }  
+unsigned int latchRegister::getCond()
+{
+    return cond;
+}
+void latchRegister::setCond(unsigned int value)
+{
+    cond = value;
+    return;
+}
 
-    unsigned int getCond()
-    {
-        return cond;
-    }
-    void setCond(unsigned int value)
-    {
-        cond = value;
-        return;
-    }
-
-    unsigned int getLMD()
-    {
-        return LMD;
-    }
-    void setLMD(unsigned int value)
-    {
-        LMD = value;
-        return;
-    }                            
-};
+unsigned int latchRegister::getLMD()
+{
+    return LMD;
+}
+void latchRegister::setLMD(unsigned int value)
+{
+    LMD = value;
+    return;
+}
 

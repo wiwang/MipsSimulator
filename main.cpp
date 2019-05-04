@@ -1,24 +1,24 @@
 #include <sys/time.h>
+#include <string.h>
 
 #include <iostream>
+
+#include "memory.h"
+#include "pipeline.h"
+
 using namespace std;
-
-enum MipsMode
-{
-    MIPS_InstructionMode = 0,
-    MIPS_CycleMode,
-    MIPS_MaxMode
-};
-
 
 int main(int argc, char *argv[])
 {
 	struct timeval stuTime; 
 	int ret = 0;   
     char fileName[50] = {0};
+    char modeString;
     MipsMode mode;
     unsigned int execution = 0;
+    char execStr[20];
     unsigned int clockTick = 0;
+    bool end = false;
 
 	memset(&stuTime, 0, sizeof(struct timeval));  
     stuTime.tv_sec = 1;  
@@ -29,28 +29,38 @@ int main(int argc, char *argv[])
     cin.getline(fileName, sizeof(fileName));
 
     cout << "Enter the MIPS running mode:" << endl;
+    cout << "0 : Instruction Mode" << endl;
+    cout << "1 : Cycle mode" << endl;
+    cin >> &modeString;
+    cin.ignore();
+    mode = (MipsMode)atoi(&modeString);
 
     cout << "Select the number of instructions:" << endl;
-
-    cout << sizeof(unsigned long int) << endl;
+    cin >> execStr;
+    cin.ignore();
+    execution = atoi(execStr);
 
     /* initiate memory and pipeline*/
     memory m;
-    pipeline p(m);
+    m.saveBinaryProgram(fileName);
+
+    pipeline p(&m);
 
     /* run the pipeline in clock cycle */
-    while (true)
+    while (true && execution && !end)
     {
         ret = select(0 ,NULL, NULL,NULL, &stuTime);  
         if(ret == 0)
         {
-            cout<<"set_timer_s time come in:"<<endl;
+            clockTick++;
+            cout<<"clock 0x"<<clockTick<<" come in!"<<endl;
             /* execute the pipeline every 1 second */
-            p.execute();
-            
-        }       
-        
+            end = p.execute(mode);   
+            execution--;
+        }
     }
+
+    p.displayResult();
 
     return 0;
 }
