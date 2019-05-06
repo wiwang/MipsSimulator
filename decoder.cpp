@@ -131,6 +131,15 @@ bool decoder::isENDInstruction(unsigned int instruction)
     }  
 }
 
+bool decoder::isMulInstruction(unsigned int instruction)
+{
+    if (0x00000018 == (instruction&0x0000003f)
+    {
+        return true;
+    }
+    return false;
+}
+
 unsigned int decoder::getRsField(unsigned int instruction) { return ((instruction&RS_MASK)>>21);}
 unsigned int decoder::getRtField(unsigned int instruction) { return ((instruction&RT_MASK)>>16);}
 unsigned int decoder::getRdField(unsigned int instruction) { return ((instruction&RD_MASK)>>11);}

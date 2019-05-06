@@ -75,6 +75,7 @@ public:
     static bool isLuiInstruction(unsigned int instruction);
     static bool isNOPInstruction(unsigned int instruction);
     static bool isENDInstruction(unsigned int instruction);
+    static bool isMulInstruction(unsigned int instruction);
 };
 
 #endif

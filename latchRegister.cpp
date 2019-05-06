@@ -11,6 +11,7 @@ void latchRegister::clear()
     ALUOutput = 0;
     cond = 0;
     LMD = 0;
+    mulResult = 0;
 }
 
 unsigned int latchRegister::getIR()
@@ -93,3 +94,11 @@ void latchRegister::setLMD(unsigned int value)
     return;
 }
 
+unsigned long int latchRegister::getMulResult()
+{
+    return mulResult;
+}
+void latchRegister::setMulResult(unsigned long int value)
+{
+    mulResult = value;
+}

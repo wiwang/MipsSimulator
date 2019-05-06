@@ -220,6 +220,12 @@ void pipeline::EXStage()
     {
         EX_MEM.setIR(ID_EX.getIR());
         EX_MEM.setALUOutput(ALU::execute(ID_EX.getA(), ID_EX.getB(), ID_EX.getIR()));
+
+        if (decoder::isMulInstruction(ID_EX.getIR()))
+        {
+            EX_MEM.setMulResult(ALU::mul(ID_EX.getA(), ID_EX.getB()));
+        }
+        
     }
     else if (decoder::isLoadInstruction(ID_EX.getIR()) || decoder::isSaveInstruction(ID_EX.getIR()))
     {
@@ -276,6 +282,7 @@ void pipeline::MEMStage()
     {
         MEM_WB.setIR(EX_MEM.getIR());
         MEM_WB.setALUOutput(EX_MEM.getALUOutput());
+        MEM_WB.setMulResult(EX_MEM.getMulResult());
     }
     else if (decoder::isLoadInstruction(EX_MEM.getIR()) || decoder::isSaveInstruction(EX_MEM.getIR()))
     {
@@ -326,6 +333,14 @@ bool pipeline::WBStage()
     if (decoder::isRInstruction(MEM_WB.getIR()))
     {
         R[decoder::getRdField(MEM_WB.getIR())] = MEM_WB.getALUOutput();
+        if (decoder::isMulInstruction(MEM_WB.getIR()))
+        {
+            R[decoder::getRdField(MEM_WB.getIR())] = (unsigned int)(MEM_WB.getMulResult() & 0x00000000ffffffff);
+            R[decoder::getRdField(MEM_WB.getIR())+1] = (unsigned int)((MEM_WB.getMulResult() & 0xffffffff00000000)>>32);
+
+            cout<<"Register value of Rd 0x"<<decoder::getRdField(MEM_WB.getIR())+1<<" in WB stage is "<<hex<<R[decoder::getRdField(MEM_WB.getIR())+1]<<endl;
+        }
+
         cout<<"Register value of Rd 0x"<<decoder::getRdField(MEM_WB.getIR())<<" in WB stage is "<<hex<<R[decoder::getRdField(MEM_WB.getIR())]<<endl;
     }
     else if (decoder::isOriInstruction(MEM_WB.getIR()) || decoder::isAndiInstruction(MEM_WB.getIR()) 
