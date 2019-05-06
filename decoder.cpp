@@ -133,7 +133,7 @@ bool decoder::isENDInstruction(unsigned int instruction)
 
 bool decoder::isMulInstruction(unsigned int instruction)
 {
-    if (0x00000018 == (instruction&0x0000003f)
+    if (0x00000018 == (instruction&0x0000003f))
     {
         return true;
     }
