@@ -11,6 +11,10 @@ unsigned int ALU::execute(unsigned int a, unsigned int b, unsigned int instructi
     {
         switch (instruction & 0x0000003f)
         {
+        case 0x00000018://multiply
+            return (a*b);
+            break;
+
         case 0x00000020://add
             return (a + b);
             break;
