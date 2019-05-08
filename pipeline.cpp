@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <string.h>
 
 #include "pipeline.h"
@@ -26,6 +27,11 @@ pipeline::pipeline(memory *m)
     memset(&ID_EX, 0, sizeof(latchRegister));
     memset(&EX_MEM, 0, sizeof(latchRegister));
     memset(&MEM_WB, 0, sizeof(latchRegister));
+
+    IF_ID.setIR(NOP_INSTRUCTION);
+    ID_EX.setIR(NOP_INSTRUCTION);
+    EX_MEM.setIR(NOP_INSTRUCTION);
+    MEM_WB.setIR(NOP_INSTRUCTION);
 }
 
 unsigned int pipeline::getNumberOfInstructions()
@@ -33,6 +39,7 @@ unsigned int pipeline::getNumberOfInstructions()
     return instructions;
 }
 
+/* the mechanism to detect if there is a data hazard in pipeline*/
 unsigned int pipeline::getDataHazard()
 {
     if (decoder::isLoadInstruction(EX_MEM.getIR()) || decoder::isLuiInstruction(EX_MEM.getIR())
@@ -134,7 +141,7 @@ void pipeline::IFStage()
         PC+=4;
     }
 
-    OPsOfIF++;
+    OPsOfIF++; //useful operation increase by 1
 
     cout<<"IR in IF_ID latch is 0x"<<hex<<IF_ID.getIR()<<endl;
     cout<<"NPC in IF_ID latch is 0x"<<hex<<IF_ID.getNPC()<<endl;
@@ -187,12 +194,12 @@ void pipeline::IDStage()
 
     holdDataHazard = false;
 
-    OPsOfID++;
+    OPsOfID++; //useful operation increase by 1
 
-    cout<<"IR in ID_EX latch is "<<hex<<ID_EX.getIR()<<endl;
-    cout<<"A in ID_EX latch is "<<hex<<ID_EX.getA()<<endl;
-    cout<<"B in ID_EX latch is "<<hex<<ID_EX.getB()<<endl;
-    cout<<"Immediate in ID_EX latch is "<<hex<<ID_EX.getImm()<<endl;
+    cout<<"IR in ID_EX latch is 0x"<<hex<<ID_EX.getIR()<<endl;
+    cout<<"A in ID_EX latch is 0x"<<hex<<ID_EX.getA()<<endl;
+    cout<<"B in ID_EX latch is 0x"<<hex<<ID_EX.getB()<<endl;
+    cout<<"Immediate in ID_EX latch is 0x"<<hex<<ID_EX.getImm()<<endl;
 }
 
 void pipeline::EXStage()
@@ -250,11 +257,11 @@ void pipeline::EXStage()
         cout<<"EXStage enter a unsupported case"<<endl;
     }
 
-    OPsOfEX++;
+    OPsOfEX++; //useful operation increase by 1
 
-    cout<<"IR in EX_MEM latch is "<<hex<<EX_MEM.getIR()<<endl;
-    cout<<"ALUOutput in EX_MEM latch is "<<hex<<EX_MEM.getALUOutput()<<endl;
-    cout<<"Condition in EX_MEM latch is "<<hex<<EX_MEM.getCond()<<endl;   
+    cout<<"IR in EX_MEM latch is 0x"<<hex<<EX_MEM.getIR()<<endl;
+    cout<<"ALUOutput in EX_MEM latch is 0x"<<hex<<EX_MEM.getALUOutput()<<endl;
+    cout<<"Condition in EX_MEM latch is 0x"<<hex<<EX_MEM.getCond()<<endl;   
 }
 
 void pipeline::MEMStage()
@@ -307,11 +314,11 @@ void pipeline::MEMStage()
         MEM_WB.setALUOutput(EX_MEM.getALUOutput());
     }
 
-    OPsOfMEM++;
+    OPsOfMEM++; //useful operation increase by 1
 
-    cout<<"IR in MEM_WB latch is "<<hex<<MEM_WB.getIR()<<endl;
-    cout<<"ALUOutput in MEM_WB latch is "<<hex<<MEM_WB.getALUOutput()<<endl;
-    cout<<"LMD in MEM_WB latch is "<<hex<<MEM_WB.getLMD()<<endl;      
+    cout<<"IR in MEM_WB latch is 0x"<<hex<<MEM_WB.getIR()<<endl;
+    cout<<"ALUOutput in MEM_WB latch is 0x"<<hex<<MEM_WB.getALUOutput()<<endl;
+    cout<<"LMD in MEM_WB latch is 0x"<<hex<<MEM_WB.getLMD()<<endl;      
 }
 
 bool pipeline::WBStage()
@@ -356,7 +363,7 @@ bool pipeline::WBStage()
         }
     }
 
-    OPsOfWB++;
+    OPsOfWB++; //useful operation increase by 1
 
     cout<<"Register value of Rt 0x" <<decoder::getRtField(MEM_WB.getIR())<<" in WB stage is "<<hex<<R[decoder::getRtField(MEM_WB.getIR())]<<endl;
 
@@ -373,7 +380,7 @@ bool pipeline::execute(MipsMode mode)
     IDStage();
     IFStage();
 
-    cycles++;
+    cycles++; //cycle increase by 1 per timer tick
 
     return ifEndOfProgram;
 }
@@ -382,11 +389,11 @@ void pipeline::displayResult()
 {
     cout <<"======================================================="<<endl;
     cout <<"The total cycles :"<<dec<<cycles<<endl;
-    cout <<"The cycles of usefull work in IF :"<<dec<<OPsOfIF<<endl;
-    cout <<"The cycles of usefull work in ID :"<<dec<<OPsOfID<<endl;
-    cout <<"The cycles of usefull work in EX :"<<dec<<OPsOfEX<<endl;
-    cout <<"The cycles of usefull work in MEM :"<<dec<<OPsOfMEM<<endl;
-    cout <<"The cycles of usefull work in WB :"<<dec<<OPsOfWB<<endl;
+    cout <<"The cycles of usefull work in IF :"<<dec<<OPsOfIF<<" ,utilization is "<<setiosflags(ios::fixed)<<setprecision(2)<<(double)(OPsOfIF*100)/cycles<<"%"<<endl;
+    cout <<"The cycles of usefull work in ID :"<<dec<<OPsOfID<<" ,utilization is "<<setiosflags(ios::fixed)<<setprecision(2)<<(double)(OPsOfID*100)/cycles<<"%"<<endl;
+    cout <<"The cycles of usefull work in EX :"<<dec<<OPsOfEX<<" ,utilization is "<<setiosflags(ios::fixed)<<setprecision(2)<<(double)(OPsOfEX*100)/cycles<<"%"<<endl;
+    cout <<"The cycles of usefull work in MEM :"<<dec<<OPsOfMEM<<" ,utilization is "<<setiosflags(ios::fixed)<<setprecision(2)<<(double)(OPsOfMEM*100)/cycles<<"%"<<endl;
+    cout <<"The cycles of usefull work in WB :"<<dec<<OPsOfWB<<" ,utilization is "<<setiosflags(ios::fixed)<<setprecision(2)<<(double)(OPsOfWB*100)/cycles<<"%"<<endl;
     cout <<"======================================================="<<endl;
 }
 
