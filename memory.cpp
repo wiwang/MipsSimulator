@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <string.h>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -47,7 +48,7 @@ void memory::saveInstruction(unsigned int instruction)
 bool memory::saveBinaryProgram(char *fileName)
 {
     ifstream infile;
-    stringstream sstr;
+    unsigned long int ins;
     char str[64];
     char *i = IMem;
     unsigned int *instruction = (unsigned int *)i;
@@ -55,11 +56,10 @@ bool memory::saveBinaryProgram(char *fileName)
     infile.open(fileName);
     while (infile.getline(str, sizeof(str)))
     {
-        sstr << std::hex << str;
-        sstr >> *instruction;
+        ins = strtoul(str, NULL, 2);
+        (*instruction) = (unsigned int)ins;
         i+=4;
         instruction = (unsigned int *)i;
-        sstr.clear();
 
         numOfInstructs++;
     }

@@ -345,10 +345,10 @@ bool pipeline::WBStage()
             R[decoder::getRdField(MEM_WB.getIR())] = (unsigned int)(MEM_WB.getMulResult() & 0x00000000ffffffff);
             R[decoder::getRdField(MEM_WB.getIR())+1] = (unsigned int)((MEM_WB.getMulResult() & 0xffffffff00000000)>>32);
 
-            cout<<"Register value of Rd 0x"<<decoder::getRdField(MEM_WB.getIR())+1<<" in WB stage is "<<hex<<R[decoder::getRdField(MEM_WB.getIR())+1]<<endl;
+            cout<<"Register value of Rd 0x"<<decoder::getRdField(MEM_WB.getIR())+1<<" in WB stage is 0x"<<hex<<R[decoder::getRdField(MEM_WB.getIR())+1]<<endl;
         }
 
-        cout<<"Register value of Rd 0x"<<decoder::getRdField(MEM_WB.getIR())<<" in WB stage is "<<hex<<R[decoder::getRdField(MEM_WB.getIR())]<<endl;
+        cout<<"Register value of Rd 0x"<<decoder::getRdField(MEM_WB.getIR())<<" in WB stage is 0x"<<hex<<R[decoder::getRdField(MEM_WB.getIR())]<<endl;
     }
     else if (decoder::isOriInstruction(MEM_WB.getIR()) || decoder::isAndiInstruction(MEM_WB.getIR()) 
             || decoder::isXoriInstruction(MEM_WB.getIR()) || decoder::isLuiInstruction(MEM_WB.getIR()))
@@ -365,7 +365,7 @@ bool pipeline::WBStage()
 
     OPsOfWB++; //useful operation increase by 1
 
-    cout<<"Register value of Rt 0x" <<decoder::getRtField(MEM_WB.getIR())<<" in WB stage is "<<hex<<R[decoder::getRtField(MEM_WB.getIR())]<<endl;
+    cout<<"Register value of Rt 0x" <<decoder::getRtField(MEM_WB.getIR())<<" in WB stage is 0x"<<hex<<R[decoder::getRtField(MEM_WB.getIR())]<<endl;
 
     return false;
 }
