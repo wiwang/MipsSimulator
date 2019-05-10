@@ -54,9 +54,11 @@ unsigned int ALU::execute(unsigned int a, unsigned int b, unsigned int instructi
     {
         return (a xor immediate);
     }
+
+    return 0;
 }
 
-unsigned long int ALU::mul(unsigned int a, unsigned int b)
+unsigned long long int ALU::mul(unsigned int a, unsigned int b)
 {
-    return((unsigned long int)a * (unsigned long int)b);
+    return((unsigned long long int)a * (unsigned long long int)b);
 }

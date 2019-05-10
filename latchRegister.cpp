@@ -94,11 +94,11 @@ void latchRegister::setLMD(unsigned int value)
     return;
 }
 
-unsigned long int latchRegister::getMulResult()
+unsigned long long int latchRegister::getMulResult()
 {
     return mulResult;
 }
-void latchRegister::setMulResult(unsigned long int value)
+void latchRegister::setMulResult(unsigned long long int value)
 {
     mulResult = value;
 }

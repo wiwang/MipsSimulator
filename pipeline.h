@@ -30,26 +30,32 @@ private:
     unsigned int cycles;
 
     unsigned int dataHazard;
-
     unsigned int instructions;
+
+    enum MipsMode mode;
+    unsigned int execNumber;
+    unsigned int executedIR;
 
     memory *mem;
 public:
     static unsigned int R[32];
     static unsigned int PC;
 
-    pipeline(memory *m);
+    pipeline(memory *m, MipsMode mode);
     void IFStage();
     void IDStage();
     void EXStage();
     void MEMStage();
     bool WBStage();
-    bool execute(MipsMode mode);
+    bool execute();
 
     unsigned int getDataHazard();
     unsigned int getNumberOfInstructions();
 
     void displayResult();
+    void dumpPipeline();
+    void setExecNumber(unsigned int n);
+    unsigned int getExecNumber();
 };
 
 #endif

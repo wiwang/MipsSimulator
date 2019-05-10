@@ -12,7 +12,7 @@ private:
     unsigned int ALUOutput;
     unsigned int cond;
     unsigned int LMD;
-    unsigned long int mulResult;
+    unsigned long long int mulResult;
 
 public:
     void clear();
@@ -32,8 +32,8 @@ public:
     void setCond(unsigned int value);
     unsigned int getLMD();
     void setLMD(unsigned int value);
-    unsigned long int getMulResult();
-    void setMulResult(unsigned long int value);                 
+    unsigned long long int getMulResult();
+    void setMulResult(unsigned long long int value);                 
 };
 
 #endif

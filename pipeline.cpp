@@ -8,10 +8,11 @@
 
 using namespace std;
 
-pipeline::pipeline(memory *m) 
+pipeline::pipeline(memory *m, MipsMode mode) 
 {
     mem = m;
     instructions = m->getNumOfInstructs();
+    this->mode = mode;
 
     stopFetching = false;
     holdDataHazard = false;
@@ -22,6 +23,8 @@ pipeline::pipeline(memory *m)
     OPsOfWB = 0;
     dataHazard = 0;
     cycles = 0;
+    execNumber = 0;
+    executedIR = NOP_INSTRUCTION;
 
     memset(&IF_ID, 0, sizeof(latchRegister));
     memset(&ID_EX, 0, sizeof(latchRegister));
@@ -142,10 +145,6 @@ void pipeline::IFStage()
     }
 
     OPsOfIF++; //useful operation increase by 1
-
-    cout<<"IR in IF_ID latch is 0x"<<hex<<IF_ID.getIR()<<endl;
-    cout<<"NPC in IF_ID latch is 0x"<<hex<<IF_ID.getNPC()<<endl;
-    cout<<"PC in IF_ID latch is 0x"<<hex<<PC<<endl;   
 } 
 
 void pipeline::IDStage()
@@ -195,11 +194,6 @@ void pipeline::IDStage()
     holdDataHazard = false;
 
     OPsOfID++; //useful operation increase by 1
-
-    cout<<"IR in ID_EX latch is 0x"<<hex<<ID_EX.getIR()<<endl;
-    cout<<"A in ID_EX latch is 0x"<<hex<<ID_EX.getA()<<endl;
-    cout<<"B in ID_EX latch is 0x"<<hex<<ID_EX.getB()<<endl;
-    cout<<"Immediate in ID_EX latch is 0x"<<hex<<ID_EX.getImm()<<endl;
 }
 
 void pipeline::EXStage()
@@ -258,10 +252,6 @@ void pipeline::EXStage()
     }
 
     OPsOfEX++; //useful operation increase by 1
-
-    cout<<"IR in EX_MEM latch is 0x"<<hex<<EX_MEM.getIR()<<endl;
-    cout<<"ALUOutput in EX_MEM latch is 0x"<<hex<<EX_MEM.getALUOutput()<<endl;
-    cout<<"Condition in EX_MEM latch is 0x"<<hex<<EX_MEM.getCond()<<endl;   
 }
 
 void pipeline::MEMStage()
@@ -297,10 +287,13 @@ void pipeline::MEMStage()
         if (decoder::isLoadInstruction(EX_MEM.getIR()))
         {
             MEM_WB.setLMD(mem->loadWordData(EX_MEM.getALUOutput()));
+            cout<<"get data 0x"<<hex<<EX_MEM.getLMD()<<" in memory 0x"<<EX_MEM.getALUOutput()<<endl;
+            OPsOfMEM++;
         }
         else if (decoder::isSaveInstruction(EX_MEM.getIR()))
         {
             mem->saveWordData(EX_MEM.getB(), EX_MEM.getALUOutput());
+            OPsOfMEM++;
             cout<<"save data 0x"<<hex<<EX_MEM.getB()<<" in memory 0x"<<EX_MEM.getALUOutput()<<endl;
         }
         else
@@ -313,16 +306,16 @@ void pipeline::MEMStage()
         MEM_WB.setIR(EX_MEM.getIR());
         MEM_WB.setALUOutput(EX_MEM.getALUOutput());
     }
-
-    OPsOfMEM++; //useful operation increase by 1
-
-    cout<<"IR in MEM_WB latch is 0x"<<hex<<MEM_WB.getIR()<<endl;
-    cout<<"ALUOutput in MEM_WB latch is 0x"<<hex<<MEM_WB.getALUOutput()<<endl;
-    cout<<"LMD in MEM_WB latch is 0x"<<hex<<MEM_WB.getLMD()<<endl;      
+    else
+    {
+        cout<<"Get a unknown instruction in MEM stage"<<endl;
+    }
 }
 
 bool pipeline::WBStage()
 {
+    executedIR = MEM_WB.getIR(); //record the last executed instruction
+
     /* reach the end of program, inform clock to stop */
     if (decoder::isENDInstruction(MEM_WB.getIR()))
     {
@@ -345,32 +338,37 @@ bool pipeline::WBStage()
             R[decoder::getRdField(MEM_WB.getIR())] = (unsigned int)(MEM_WB.getMulResult() & 0x00000000ffffffff);
             R[decoder::getRdField(MEM_WB.getIR())+1] = (unsigned int)((MEM_WB.getMulResult() & 0xffffffff00000000)>>32);
 
-            cout<<"Register value of Rd 0x"<<decoder::getRdField(MEM_WB.getIR())+1<<" in WB stage is 0x"<<hex<<R[decoder::getRdField(MEM_WB.getIR())+1]<<endl;
+            //cout<<"Register value of Rd 0x"<<decoder::getRdField(MEM_WB.getIR())+1<<" in WB stage is 0x"<<hex<<R[decoder::getRdField(MEM_WB.getIR())+1]<<endl;
         }
+        OPsOfWB++;
 
-        cout<<"Register value of Rd 0x"<<decoder::getRdField(MEM_WB.getIR())<<" in WB stage is 0x"<<hex<<R[decoder::getRdField(MEM_WB.getIR())]<<endl;
+        //cout<<"Register value of Rd 0x"<<decoder::getRdField(MEM_WB.getIR())<<" in WB stage is 0x"<<hex<<R[decoder::getRdField(MEM_WB.getIR())]<<endl;
     }
     else if (decoder::isOriInstruction(MEM_WB.getIR()) || decoder::isAndiInstruction(MEM_WB.getIR()) 
             || decoder::isXoriInstruction(MEM_WB.getIR()) || decoder::isLuiInstruction(MEM_WB.getIR()))
     {
         R[decoder::getRtField(MEM_WB.getIR())] = MEM_WB.getALUOutput();
+        OPsOfWB++;
     }
     else if (decoder::isLoadInstruction(MEM_WB.getIR()) || decoder::isSaveInstruction(MEM_WB.getIR()))
     {
         if (decoder::isLoadInstruction(MEM_WB.getIR()))
         {
             R[decoder::getRtField(MEM_WB.getIR())] = MEM_WB.getLMD();
+            OPsOfWB++;//useful operation increase by 1
         }
     }
-
-    OPsOfWB++; //useful operation increase by 1
-
-    cout<<"Register value of Rt 0x" <<decoder::getRtField(MEM_WB.getIR())<<" in WB stage is 0x"<<hex<<R[decoder::getRtField(MEM_WB.getIR())]<<endl;
+    else
+    {
+        cout<<"Get a unknown instruction in WB stage"<<endl;
+    }
+    
+    //cout<<"Register value of Rt 0x" <<decoder::getRtField(MEM_WB.getIR())<<" in WB stage is 0x"<<hex<<R[decoder::getRtField(MEM_WB.getIR())]<<endl;
 
     return false;
 }
 
-bool pipeline::execute(MipsMode mode)
+bool pipeline::execute()
 {
     bool ifEndOfProgram = false;
 
@@ -382,19 +380,81 @@ bool pipeline::execute(MipsMode mode)
 
     cycles++; //cycle increase by 1 per timer tick
 
+    if (mode==MIPS_InstructionMode && !(decoder::isENDInstruction(executedIR) || decoder::isNOPInstruction(executedIR)))
+    {
+        execNumber--;
+        cout<<"instruction 0x"<<hex<<executedIR<<"is executed"<<endl;  
+        dumpPipeline();
+    }
+
+    if (mode==MIPS_CycleMode)
+    {
+        execNumber--;        
+        dumpPipeline();
+    }
+    
     return ifEndOfProgram;
 }
 
 void pipeline::displayResult()
 {
-    cout <<"======================================================="<<endl;
+    cout <<"===============The final result summary=================="<<endl;
     cout <<"The total cycles :"<<dec<<cycles<<endl;
     cout <<"The cycles of usefull work in IF :"<<dec<<OPsOfIF<<" ,utilization is "<<setiosflags(ios::fixed)<<setprecision(2)<<(double)(OPsOfIF*100)/cycles<<"%"<<endl;
     cout <<"The cycles of usefull work in ID :"<<dec<<OPsOfID<<" ,utilization is "<<setiosflags(ios::fixed)<<setprecision(2)<<(double)(OPsOfID*100)/cycles<<"%"<<endl;
     cout <<"The cycles of usefull work in EX :"<<dec<<OPsOfEX<<" ,utilization is "<<setiosflags(ios::fixed)<<setprecision(2)<<(double)(OPsOfEX*100)/cycles<<"%"<<endl;
     cout <<"The cycles of usefull work in MEM :"<<dec<<OPsOfMEM<<" ,utilization is "<<setiosflags(ios::fixed)<<setprecision(2)<<(double)(OPsOfMEM*100)/cycles<<"%"<<endl;
     cout <<"The cycles of usefull work in WB :"<<dec<<OPsOfWB<<" ,utilization is "<<setiosflags(ios::fixed)<<setprecision(2)<<(double)(OPsOfWB*100)/cycles<<"%"<<endl;
-    cout <<"======================================================="<<endl;
+    cout <<"==========================end============================"<<endl;
+}
+
+void pipeline::setExecNumber(unsigned int n)
+{
+    execNumber = n;
+}
+
+unsigned int pipeline::getExecNumber()
+{
+    return execNumber;
+}
+
+void pipeline::dumpPipeline()
+{
+    cout<<"===============dump the status of CPU================="<<endl;    
+    cout<<"Clock cycle is: "<<dec<<cycles<<endl;
+    cout<<"R[0]:0x"<<hex<<R[0]<<" R[1]:0x"<<R[1]<<" R[2]:0x"<<R[2]<<" R[3]:0x"<<R[3]<<" R[4]:0x"<<R[4]<<" R[5]:0x"<<R[5]<<" R[6]:0x"<<R[6]<<" R[7]:0x"<<R[7]<<endl;
+    cout<<"R[8]:0x"<<hex<<R[8]<<" R[9]:0x"<<R[9]<<" R[10]:0x"<<R[10]<<" R[11]:0x"<<R[11]<<" R[12]:0x"<<R[12]<<" R[13]:0x"<<R[13]<<" R[14]:0x"<<R[14]<<" R[15]:0x"<<R[15]<<endl;
+    cout<<"R[16]:0x"<<hex<<R[16]<<" R[17]:0x"<<R[17]<<" R[18]:0x"<<R[18]<<" R[19]:0x"<<R[19]<<" R[20]:0x"<<R[20]<<" R[21]:0x"<<R[21]<<" R[22]:0x"<<R[22]<<" R[23]:0x"<<R[23]<<endl;
+    cout<<"R[24]:0x"<<hex<<R[24]<<" R[25]:0x"<<R[25]<<" R[26]:0x"<<R[26]<<" R[27]:0x"<<R[27]<<" R[28]:0x"<<R[28]<<" R[29]:0x"<<R[29]<<" R[30]:0x"<<R[30]<<" R[31]:0x"<<R[31]<<endl;
+
+    cout<<"IR in IF_ID latch is 0x"<<hex<<IF_ID.getIR()<<endl;
+    cout<<"NPC in IF_ID latch is 0x"<<hex<<IF_ID.getNPC()<<endl;
+    cout<<"PC in IF_ID latch is 0x"<<hex<<PC<<endl;       
+
+    cout<<"IR in ID_EX latch is 0x"<<hex<<ID_EX.getIR()<<endl;
+    cout<<"A in ID_EX latch is 0x"<<hex<<ID_EX.getA()<<endl;
+    cout<<"B in ID_EX latch is 0x"<<hex<<ID_EX.getB()<<endl;
+    cout<<"Immediate in ID_EX latch is 0x"<<hex<<ID_EX.getImm()<<endl;
+
+    cout<<"IR in EX_MEM latch is 0x"<<hex<<EX_MEM.getIR()<<endl;
+    cout<<"ALUOutput in EX_MEM latch is 0x"<<hex<<EX_MEM.getALUOutput()<<endl;
+    cout<<"Condition in EX_MEM latch is 0x"<<hex<<EX_MEM.getCond()<<endl;
+
+    cout<<"IR in MEM_WB latch is 0x"<<hex<<MEM_WB.getIR()<<endl;
+    cout<<"ALUOutput in MEM_WB latch is 0x"<<hex<<MEM_WB.getALUOutput()<<endl;
+    cout<<"LMD in MEM_WB latch is 0x"<<hex<<MEM_WB.getLMD()<<endl;   
+
+    cout<<"==============The content of data memory================"<<endl;
+    unsigned int word = 0;
+    for (int i = 0; i < 2048/4; i+=4)
+    {
+        word = mem->loadWordData(i);
+        if (word)
+        {
+            cout<<"the value of word at address 0x"<<hex<<i<<" is 0x"<<word<<endl;
+        }
+    }
+    cout<<"========================end=============================="<<endl;
 }
 
 unsigned int pipeline::PC = 0;
